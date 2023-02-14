@@ -4,18 +4,21 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
+# The creation and use of the SQLite db through SQLAlchemy is an example of the Database Integration concept
 # /// = relative path, //// = absolute path
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
+# The Todo class represents a database entry, using the Database Integration concept
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
     complete = db.Column(db.Boolean)
 
 
+# Each time we use the fuction decorator '@app.route(...)', we are using the routing concept as implemented in Flask
 @app.route('/')
 def home():
     todo_list = Todo.query.all()
@@ -28,6 +31,7 @@ def add():
     new_todo = Todo(title=title, complete=False)
     db.session.add(new_todo)
     db.session.commit()
+    # Anytime we use "url_for(...)", we are using the URL Generation concept
     return redirect(url_for("home"))
 
 

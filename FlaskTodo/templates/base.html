@@ -1,3 +1,5 @@
+<!-- This file is an example of the template concept in Flask, although we don't 
+    actually extend it which would use it to its full potential -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,6 +25,7 @@
 
         <hr>
 
+        <!-- Embedded code concept through Jinja! -->
         {% for todo in todo_list %}
         <div class="ui segment">
             <p class="ui big header">{{todo.id }} | {{ todo.title }}</p>
