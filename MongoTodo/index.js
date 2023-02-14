@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 
+// This is an example of the configuration concept
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -8,9 +9,12 @@ dotenv.config();
 const TodoTask = require("./models/TodoTask");
 
 //connection to db
+// This is clearly the database integration concept, since MongoDB is innately a database framework
 const mongoose = require("mongoose");
 mongoose.connect(process.env.DB_CONNECT, { useNewUrlParser: true }, () => {
 console.log("Connected to db!");
+
+// This is an example of the listening concept
 app.listen(4000, () => console.log("Server Up and running"));
 });
 
@@ -18,6 +22,8 @@ app.use("/static", express.static("public"));
 
 app.set("view engine", "ejs");
 
+// By supplying the first argument, "/" and the type of request, "Get", this is an example of the routing concept
+// Node.js takes any GET requests to the "/" URL and routes them to this method
 // GET METHOD
 app.get("/", (req, res) => {
     TodoTask.find({}, (err, tasks) => {

@@ -1,3 +1,4 @@
+<!-- Inherent in the name ejs: Embedded JS, is the Embedded code concept -->
 <!DOCTYPE html>
 <head>
    <title>Todo App</title>
@@ -15,6 +16,7 @@
             <button type="submit"><span class="fas fa-plus"></span></button>
          </form>
          <ul class="todo-list">
+            <!-- Here we see embedded javascript, in a similar way to the Jinja code in the Flask framework -->
             <% todoTasks.forEach(details => { %>
             <li class="todo-list-item">
                <div class="todo-list-item-name"><%= details.content %></div>
