@@ -1,0 +1,3 @@
+[submodule "Tier2a"]
+	path = Tier2a
+	url = git@github.com:CodAngels/Tier2a.git
