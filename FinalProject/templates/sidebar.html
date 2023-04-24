@@ -1,0 +1,37 @@
+<div class="sidebar-wrapper">
+    <div class="sidebar">
+        {% if request.path == url_for('pantry') %}
+            <h3>Common Ingredients</h3>
+            <form method="POST" action="{{ url_for('add_common_ingredients') }}">
+                <div class="form-group">
+                    <label for="fruits">Fruits:</label>
+                    <!-- Add checkboxes for common fruits here -->
+                </div>
+                <div class="form-group">
+                    <label for="dairy">Dairy:</label>
+                    <input type="checkbox">Apple</input>
+                </div>
+                <!-- Add more categories if needed -->
+                <button type="submit" class="btn btn-primary">Add Selected Ingredients</button>
+            </form>
+        {% elif request.path == url_for('recipe') %}
+            <h3>Generate Recipe</h3>
+            <form method="POST" action="{{ url_for('recipe') }}">
+                <div class="form-group">
+                    <label for="ingredients">Ingredients:</label>
+                    <input type="textarea" autocomplete="off" class="form-control" id="ingredients" name="ingredients" placeholder="Enter ingredients">
+                    {% if current_user.is_authenticated %}
+                        <p><small>Leave blank to use pantry</small></p>
+                    {% else %}
+                        <p><small>Register or Login to create persistent pantry</small></p>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="meal_type">Meal Type:</label>
+                    <!-- Add options for meal types here -->
+                </div>
+                <button type="submit" class="btn btn-success">Generate Recipe</button>
+            </form>
+        {% endif %}
+    </div>
+</div>

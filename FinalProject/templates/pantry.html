@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content">
+    {% include 'sidebar.html' %}
+    <div class="container">
+        {% include 'flash_messages.html' %}
+        <h2 class="text-center mt-5">Welcome, {{ current_user.username }}!</h2>
+        <h3>Your Pantry</h3>
+        <div class="ingredient-list">
+            {% for ingredient in ingredients %}
+            <div class="ingredient-item">
+                <div class="ingredient-name">{{ ingredient.name }}</div>
+                <form action="{{ url_for('delete_ingredient', ingredient_id=ingredient.id) }}" method="POST" class="delete-ingredient-form">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        
+        
+        <form method="POST" action="{{ url_for('add_ingredient') }}">
+            <div class="form-group">
+                <label for="ingredient">Add Ingredient:</label>
+                <input type="text" autocomplete="off" class="form-control" id="ingredient" name="ingredient" placeholder="Enter ingredient" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Ingredient</button>
+        </form>
+
+        <h3>Dietary Restrictions and Preferences</h3>
+        <form method="POST" action="{{ url_for('update_preferences') }}">
+            <!-- Add checkboxes for dietary restrictions and preferences here -->
+            <button type="submit" class="btn btn-primary">Update Preferences</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

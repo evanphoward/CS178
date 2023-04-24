@@ -1,0 +1,68 @@
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.navbar {
+    z-index: 101;
+    position: fixed;
+    width: 100%;
+}
+
+.container {
+    margin-top: 56px;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+}
+
+.sidebar-wrapper {
+    width: 25%;
+    height: calc(100% - 56px);
+}
+
+.sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    bottom: 0;
+    width: 25%;
+    padding: 10px;
+    background-color: #c5c8cb;
+    border-right: 1px solid #dee2e6;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.flash-messages {
+    position: relative;
+    margin-top: 5px;
+    z-index: 200;
+}
+
+.ingredient-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 20px;
+}
+
+.ingredient-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
+
+.ingredient-name {
+    margin: 0;
+}
+
+.delete-ingredient-form {
+    margin: 0;
+}
