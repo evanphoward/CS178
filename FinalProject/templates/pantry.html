@@ -7,15 +7,18 @@
         {% include 'flash_messages.html' %}
         <h2 class="text-center mt-5">Welcome, {{ current_user.username }}!</h2>
         <h3>Your Pantry</h3>
-        <div class="ingredient-list">
-            {% for ingredient in ingredients %}
-            <div class="ingredient-item">
-                <div class="ingredient-name">{{ ingredient.name }}</div>
-                <form action="{{ url_for('delete_ingredient', ingredient_id=ingredient.id) }}" method="POST" class="delete-ingredient-form">
-                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                </form>
+        <input type="text" id="search-ingredient" class="form-control" placeholder="Search ingredients">
+        <div class="scrollable-ingredients">
+            <div class="ingredient-list">
+                {% for ingredient in ingredients %}
+                <div class="ingredient-item">
+                    <div class="ingredient-name">{{ ingredient.name }}</div>
+                    <form action="{{ url_for('delete_ingredient', ingredient_id=ingredient.id) }}" method="POST" class="delete-ingredient-form">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
         
         

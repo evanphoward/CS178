@@ -43,6 +43,24 @@ body {
     z-index: 200;
 }
 
+.scrollable-ingredients::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+}
+
+.scrollable-ingredients::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+}
+
+.scrollable-ingredients {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
 .ingredient-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -59,10 +77,32 @@ body {
     background-color: #f8f9fa;
 }
 
-.ingredient-name {
-    margin: 0;
+.delete-ingredient-form {
+    margin-left: 5px;
 }
 
-.delete-ingredient-form {
-    margin: 0;
+.ingredient-category {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ingredient-category:last-child {
+    border-bottom: none;
+}
+
+.ingredient-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.custom-control.custom-control-input {
+    margin-right: 0.25rem;
+    margin-left: 0.25rem;
+}
+
+.custom-control-input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
 }

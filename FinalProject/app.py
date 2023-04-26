@@ -31,7 +31,7 @@ class Ingredient(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 def get_user_ingredients(user_id, as_string=True):
-    ingredients = Ingredient.query.filter_by(user_id=user_id).all()
+    ingredients = Ingredient.query.filter_by(user_id=user_id).order_by(Ingredient.name).all()
     if as_string == False:
         return ingredients
     ingredient_names = [ingredient.name for ingredient in ingredients]
@@ -86,7 +86,7 @@ def login():
 @login_required
 def pantry():
     user_ingredients = get_user_ingredients(current_user.id, False)
-    return render_template('pantry.html', ingredients=user_ingredients)
+    return render_template('pantry.html', ingredients=user_ingredients, ingredient_names=[ingredient.name for ingredient in user_ingredients])
 
 @app.route('/logout')
 @login_required
@@ -133,18 +133,34 @@ def add_ingredient():
     ingredient = request.form['ingredient']
     
     # Create and store the Ingredient object
-    new_ingredient = Ingredient(name=ingredient, user_id=current_user.id)
+    new_ingredient = Ingredient(name=ingredient, required=False, user_id=current_user.id)
     db.session.add(new_ingredient)
     db.session.commit()
 
     flash('Ingredient added successfully')
     return redirect(url_for('pantry'))
 
-@app.route('/add_common_ingredients', methods=['POST'])
+@app.route('/update_common_ingredients', methods=['POST'])
 @login_required
-def add_common_ingredients():
-    # Add code to store the selected common ingredients in the user's pantry
-    flash('Selected ingredients added successfully')
+def update_common_ingredients():
+    data = request.get_json()
+    ingredient_name = data.get('ingredient')
+    add = data.get('add')
+
+    ingredient = Ingredient.query.filter_by(name=ingredient_name, user_id=current_user.id).first()
+
+    if add:
+        if not ingredient:
+            new_ingredient = Ingredient(name=ingredient_name, required=False, user_id=current_user.id)
+            db.session.add(new_ingredient)
+            db.session.commit()
+            return redirect(url_for('pantry'))
+    else:
+        if ingredient:
+            db.session.delete(ingredient)
+            db.session.commit()
+            return redirect(url_for('pantry'))
+
     return redirect(url_for('pantry'))
 
 @app.route('/delete_ingredient/<int:ingredient_id>', methods=['POST'])

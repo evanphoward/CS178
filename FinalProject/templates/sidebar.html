@@ -1,18 +1,33 @@
 <div class="sidebar-wrapper">
     <div class="sidebar">
         {% if request.path == url_for('pantry') %}
-            <h3>Common Ingredients</h3>
-            <form method="POST" action="{{ url_for('add_common_ingredients') }}">
-                <div class="form-group">
-                    <label for="fruits">Fruits:</label>
-                    <!-- Add checkboxes for common fruits here -->
-                </div>
-                <div class="form-group">
-                    <label for="dairy">Dairy:</label>
-                    <input type="checkbox">Apple</input>
-                </div>
-                <!-- Add more categories if needed -->
-                <button type="submit" class="btn btn-primary">Add Selected Ingredients</button>
+        <h3>Common Ingredients</h3>
+            <form method="POST" action="{{ url_for('update_common_ingredients') }}">
+                {% set categories = [
+                    ('Pantry Essentials', ['Salt', 'Pepper', 'Sugar', 'Flour', 'Olive Oil', 'Baking Soda', 'Baking Powder', 'Vinegar', 'Cornstarch', 'Honey']),
+                    ('Vegetables & Greens', ['Onion', 'Garlic', 'Tomato', 'Carrot', 'Broccoli', 'Spinach', 'Kale', 'Bell Pepper', 'Cucumber', 'Mushroom']),
+                    ('Fruits', ['Apple', 'Banana', 'Orange', 'Strawberry', 'Blueberry', 'Raspberry', 'Grape', 'Pineapple', 'Peach', 'Lemon']),
+                    ('Nuts & Seeds', ['Almond', 'Walnut', 'Cashew', 'Peanut', 'Chia Seed', 'Flaxseed', 'Sunflower Seed', 'Pistachio', 'Pecan', 'Pumpkin Seed']),
+                    ('Cheeses', ['Cheddar', 'Mozzarella', 'Parmesan', 'Feta', 'Swiss', 'Gouda', 'Brie', 'Monterey Jack', 'Provolone', 'Blue']),
+                    ('Dairy & Eggs', ['Milk', 'Butter', 'Yogurt', 'Sour Cream', 'Cream Cheese', 'Whipping Cream', 'Eggs', 'Cottage Cheese', 'Ricotta', 'Ice Cream']),
+                    ('Meats', ['Chicken', 'Beef', 'Pork', 'Bacon', 'Sausage', 'Turkey', 'Salmon', 'Tuna', 'Shrimp', 'Lamb']),
+                    ('Grains & Pasta', ['Rice', 'Pasta', 'Bread', 'Quinoa', 'Couscous', 'Oats', 'Barley', 'Bulgur', 'Tortilla', 'Crackers'])
+                ] %}
+                {% for category, category_ingredients in categories %}
+                    <div class="form-group">
+                        <label>{{ category }}:</label>
+                        <div class="ingredient-list">
+                            {% for ingredient in category_ingredients %}
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input common-ingredient-checkbox" id="{{ ingredient }}" 
+                                    {% if ingredient in ingredient_names %}checked{% endif %}>
+                                    <label class="custom-control-label" for="{{ ingredient }}">{{ ingredient }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Update Pantry</button>
             </form>
         {% elif request.path == url_for('recipe') %}
             <h3>Generate Recipe</h3>
@@ -35,3 +50,29 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('.common-ingredient-checkbox').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const ingredient = this.getAttribute('id');
+            const isChecked = this.checked;
+
+            fetch('/update_common_ingredients', {
+                method: 'POST',
+                body: JSON.stringify({
+                    ingredient: ingredient,
+                    add: isChecked
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(function(response) {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    console.error('Failed to update ingredient');
+                }
+            });
+        });
+    });
+</script>
