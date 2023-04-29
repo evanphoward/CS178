@@ -19,15 +19,14 @@
                         <div class="ingredient-list">
                             {% for ingredient in category_ingredients %}
                                 <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input common-ingredient-checkbox" id="{{ ingredient }}" 
-                                    {% if ingredient in ingredient_names %}checked{% endif %}>
-                                    <label class="custom-control-label" for="{{ ingredient }}">{{ ingredient }}</label>
+                                    <input type="checkbox" class="custom-control-input common-ingredient-checkbox invisible-checkbox" id="{{ ingredient }}"
+                                        {% if ingredient in ingredient_names %}checked{% endif %}>
+                                    <label class="custom-control-label toggle-label" for="{{ ingredient }}">{{ ingredient }}</label>
                                 </div>
                             {% endfor %}
                         </div>
                     </div>
                 {% endfor %}
-                <button type="submit" class="btn btn-primary">Update Pantry</button>
             </form>
         {% elif request.path == url_for('recipe') %}
             <h3>Generate Recipe</h3>

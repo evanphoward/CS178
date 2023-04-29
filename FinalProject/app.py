@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 import openai
 import os
+import random
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -29,6 +30,12 @@ class Ingredient(db.Model):
     name = db.Column(db.String(80), nullable=False)
     required = db.Column(db.Boolean, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class Recipe(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(256), nullable=False)
+    content = db.Column(db.String(10000), nullable=False)
+    ingredients = db.Column(db.String(1000), nullable=False)
 
 def get_user_ingredients(user_id, as_string=True):
     ingredients = Ingredient.query.filter_by(user_id=user_id).order_by(Ingredient.name).all()
@@ -96,7 +103,9 @@ def logout():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    recipes = Recipe.query.all()
+    random.shuffle(recipes)
+    return render_template('index.html', recipes=recipes)
 
 @app.route('/recipe', methods=['POST', 'GET'])
 def recipe():
@@ -111,7 +120,29 @@ def recipe():
         if ingredients_text == "":
             return render_template('recipe.html', recipe="Please input at least one ingredient!")
         
-        prompt = f"Create a recipe that uses only the following ingredients. You don't need to use all the ingredients, but you must only use ingredients from this list. Write your response in valid HTML to make it easier to display as a webpage, but only use text (no images or links). Here are the ingredients: {ingredients_text}"
+        prompt = f"""
+        Create a recipe that uses only the following ingredients. You don't need to use all the ingredients, but you must only use ingredients from this list. 
+        Write in the following format. The list of ingredients on the second line shouldn't have quantities, but the ingredients in the HTML should have quantities.
+
+        ```
+        [TITLE]
+        [INGREDIENT 1], [INGREDIENT 2], [INGREDIENT 3]
+        <div class="generated-recipe">
+        <h1 class="recipe-title"> [TITLE] </h1>
+        <h2 class="ingredients-header"> Ingredients: </h2>
+        <ul class="ingredients-list">
+        <li class="ingredients-item"> [INGREDIENT 1] </li>
+        <li class="ingredients-item"> [INGREDIENT 2] </li>
+        </ul>
+        <h2 class="instructions-header">  Instructions: </h2>
+        <ol class="instructions-list">
+        <li class="instruction-item"> [STEP 1] </li>
+        <li class="instruction-item"> [STEP 2] </li>
+        </ol>
+        </div>
+        ```
+
+        Here are the ingredients:  {ingredients_text}"""
 
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -119,13 +150,25 @@ def recipe():
                 {"role": "system", "content": "You are a world-class chef that creates recipes for users."},
                 {"role": "user", "content": prompt}
             ]
-        )
+        ).choices[0].message.content
 
-        print(response)
-        generated_recipe = response.choices[0].message.content
-        return render_template('recipe.html', recipe=generated_recipe)
+        recipe_title = response.split("\n")[0]
+        ingredients = response.split("\n")[1]
+        if ingredients == '':
+            ingredients = response.split("\n")[2]
+        generated_recipe_content = response[response.index("<"):]
 
-    return render_template('recipe.html', recipe="")
+        generated_recipe = Recipe(title=recipe_title, ingredients=ingredients, content=generated_recipe_content)
+        db.session.add(generated_recipe)
+        db.session.commit()
+
+        return render_template('recipe.html', recipe=generated_recipe_content)
+
+    recipe_id = request.args.get('recipe_id', type=int)
+    recipe_content = ""
+    if recipe_id:
+        recipe_content = Recipe.query.filter_by(id=recipe_id).first().content
+    return render_template('recipe.html', recipe=recipe_content)
 
 @app.route('/add_ingredient', methods=['POST'])
 @login_required
