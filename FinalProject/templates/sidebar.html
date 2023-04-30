@@ -2,16 +2,17 @@
     <div class="sidebar">
         {% if request.path == url_for('pantry') %}
         <h3>Common Ingredients</h3>
+        <p><small>Use "Add Ingredient" entry under your pantry for ingredients not found here</small></p>
             <form method="POST" action="{{ url_for('update_common_ingredients') }}">
                 {% set categories = [
                     ('Pantry Essentials', ['Salt', 'Pepper', 'Sugar', 'Flour', 'Olive Oil', 'Baking Soda', 'Baking Powder', 'Vinegar', 'Cornstarch', 'Honey']),
                     ('Vegetables & Greens', ['Onion', 'Garlic', 'Tomato', 'Carrot', 'Broccoli', 'Spinach', 'Kale', 'Bell Pepper', 'Cucumber', 'Mushroom']),
-                    ('Fruits', ['Apple', 'Banana', 'Orange', 'Strawberry', 'Blueberry', 'Raspberry', 'Grape', 'Pineapple', 'Peach', 'Lemon']),
+                    ('Fruits', ['Apple', 'Banana', 'Orange', 'Strawberry', 'Blueberry', 'Raspberry', 'Grape', 'Peach', 'Lemon']),
                     ('Nuts & Seeds', ['Almond', 'Walnut', 'Cashew', 'Peanut', 'Chia Seed', 'Flaxseed', 'Sunflower Seed', 'Pistachio', 'Pecan', 'Pumpkin Seed']),
-                    ('Cheeses', ['Cheddar', 'Mozzarella', 'Parmesan', 'Feta', 'Swiss', 'Gouda', 'Brie', 'Monterey Jack', 'Provolone', 'Blue']),
-                    ('Dairy & Eggs', ['Milk', 'Butter', 'Yogurt', 'Sour Cream', 'Cream Cheese', 'Whipping Cream', 'Eggs', 'Cottage Cheese', 'Ricotta', 'Ice Cream']),
+                    ('Cheeses', ['Cheddar', 'Mozzarella', 'Parmesan', 'Feta', 'Swiss', 'Gouda', 'Brie', 'Monterey Jack', 'Provolone']),
+                    ('Dairy & Eggs', ['Milk', 'Butter', 'Yogurt', 'Sour Cream', 'Cream Cheese', 'Eggs', 'Cottage Cheese', 'Ricotta', 'Ice Cream']),
                     ('Meats', ['Chicken', 'Beef', 'Pork', 'Bacon', 'Sausage', 'Turkey', 'Salmon', 'Tuna', 'Shrimp', 'Lamb']),
-                    ('Grains & Pasta', ['Rice', 'Pasta', 'Bread', 'Quinoa', 'Couscous', 'Oats', 'Barley', 'Bulgur', 'Tortilla', 'Crackers'])
+                    ('Grains & Pasta', ['Rice', 'Oats', 'Tortilla', 'Crackers', 'Spaghetti', 'Macaroni'])
                 ] %}
                 {% for category, category_ingredients in categories %}
                     <div class="form-group">
@@ -37,12 +38,17 @@
                     {% if current_user.is_authenticated %}
                         <p><small>Leave blank to use pantry</small></p>
                     {% else %}
-                        <p><small>Register or Login to create persistent pantry</small></p>
+                        <p><small>Register or Login to create persistent pantry and indicate dietary restrictions</small></p>
                     {% endif %}
                 </div>
                 <div class="form-group">
                     <label for="meal_type">Meal Type:</label>
-                    <!-- Add options for meal types here -->
+                    <select class="form-control" id="meal_type" name="meal_type">
+                        <option value="breakfast">Breakfast</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="dinner">Dinner</option>
+                        <option value="a snack">Snack</option>
+                    </select>
                 </div>
                 <button type="submit" class="btn btn-success">Generate Recipe</button>
             </form>
@@ -67,11 +73,21 @@
                 }
             }).then(function(response) {
                 if (response.ok) {
+                    localStorage.setItem('sidebarScrollPosition', document.querySelector('.sidebar').scrollTop);
                     location.reload();
                 } else {
                     console.error('Failed to update ingredient');
                 }
             });
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector('.sidebar');
+        const scrollPosition = localStorage.getItem('sidebarScrollPosition');
+        if (scrollPosition) {
+            sidebar.scrollTop = scrollPosition;
+            localStorage.removeItem('sidebarScrollPosition');
+        }
     });
 </script>

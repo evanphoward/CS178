@@ -21,6 +21,8 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
+    dietary_restrictions = db.Column(db.String(255), nullable=True, default="")
+    meal_preferences = db.Column(db.String(255), nullable=True, default="")
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -117,12 +119,21 @@ def recipe():
             user_ingredients = get_user_ingredients(current_user.id)
             ingredients_text = ', '.join(user_ingredients)
 
+        dietary_restrictions = ""
+        meal_preferences = ""
+        if current_user.is_authenticated:
+            if len(current_user.dietary_restrictions) > 0:
+                dietary_restrictions = f"The recipe should obey the following dietary restrictions: {current_user.dietary_restrictions}."
+            if len(current_user.meal_preferences) > 0:
+                meal_preferences = f"The recipe should keep in mind the following preferences: {current_user.meal_preferences}."
+
+        meal_type = request.form.get('meal_type')
+
         if ingredients_text == "":
             return render_template('recipe.html', recipe="Please input at least one ingredient!")
         
         prompt = f"""
-        Create a recipe that uses only the following ingredients. You don't need to use all the ingredients, but you must only use ingredients from this list. 
-        Write in the following format. The list of ingredients on the second line shouldn't have quantities, but the ingredients in the HTML should have quantities.
+        Create a recipe in the following format. The list of ingredients on the second line shouldn't have quantities, but the ingredients in the HTML should have quantities.
 
         ```
         [TITLE]
@@ -142,7 +153,9 @@ def recipe():
         </div>
         ```
 
-        Here are the ingredients:  {ingredients_text}"""
+        The recipe should only use the following ingredients. You don't need to use all the ingredients, but you must only use ingredients from this list: {ingredients_text}. The recipe should be for {meal_type}.
+        {dietary_restrictions}
+        {meal_preferences}"""
 
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -152,11 +165,16 @@ def recipe():
             ]
         ).choices[0].message.content
 
-        recipe_title = response.split("\n")[0]
-        ingredients = response.split("\n")[1]
-        if ingredients == '':
-            ingredients = response.split("\n")[2]
-        generated_recipe_content = response[response.index("<"):]
+        try:
+            recipe_title = response.split("\n")[0]
+            ingredients = response.split("\n")[1]
+            if ingredients == '':
+                ingredients = response.split("\n")[2]
+            generated_recipe_content = response[response.index("<"):]
+        except:
+            # If GPT returns something in an invalid format, just display the entire response
+            # Have not seen this happen, but theorectically possible
+            return render_template('recipe.html', recipe=response)
 
         generated_recipe = Recipe(title=recipe_title, ingredients=ingredients, content=generated_recipe_content)
         db.session.add(generated_recipe)
@@ -222,7 +240,24 @@ def delete_ingredient(ingredient_id):
 @app.route('/update_preferences', methods=['POST'])
 @login_required
 def update_preferences():
-    # Add code to store the user's dietary restrictions and preferences
+    restrictions = ['vegetarian', 'vegan', 'gluten_free', 'dairy_free', 'nut_free']
+    preferences = ['low_carb', 'high_protein', 'low_fat', 'low_sodium']
+
+    user_restrictions = []
+    user_preferences = []
+
+    for restriction in restrictions:
+        if restriction in request.form:
+            user_restrictions.append(restriction)
+
+    for preference in preferences:
+        if preference in request.form:
+            user_preferences.append(preference)
+
+    current_user.dietary_restrictions = ','.join(user_restrictions)
+    current_user.meal_preferences = ','.join(user_preferences)
+    db.session.commit()
+
     flash('Preferences updated successfully')
     return redirect(url_for('pantry'))
 

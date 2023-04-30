@@ -2,6 +2,7 @@
 
 {% block content %}
 <div class="container">
+    {% include 'flash_messages.html' %}
     <h2 class="text-center mt-5">Log In</h2>
     <form method="POST" action="{{ url_for('login') }}">
         <div class="form-group">

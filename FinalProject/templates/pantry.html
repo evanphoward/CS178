@@ -30,11 +30,47 @@
             <button type="submit" class="btn btn-primary">Add Ingredient</button>
         </form>
 
+        {% set user_restrictions = current_user.dietary_restrictions.split(',') %}
+        {% set user_preferences = current_user.meal_preferences.split(',') %}
+
         <h3>Dietary Restrictions and Preferences</h3>
         <form method="POST" action="{{ url_for('update_preferences') }}">
-            <!-- Add checkboxes for dietary restrictions and preferences here -->
+            <div class="form-group">
+                <label>Dietary Restrictions:</label>
+                <div class="dietary-restrictions-list row">
+                    {% set restrictions = ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free'] %}
+                    {% for restriction in restrictions %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="{{ restriction.lower().replace(' ', '_') }}" name="{{ restriction.lower().replace(' ', '_') }}"
+                            {% if restriction.lower().replace(' ', '_') in user_restrictions %}checked{% endif %}>
+                            <label class="custom-control-label" for="{{ restriction.lower().replace(' ', '_') }}">{{ restriction }}</label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Meal Preferences:</label>
+                <div class="meal-preferences-list row">
+                    {% set preferences = ['Low Carb', 'High Protein', 'Low Fat', 'Low Sodium'] %}
+                    {% for preference in preferences %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="{{ preference.lower().replace(' ', '_') }}" name="{{ preference.lower().replace(' ', '_') }}"
+                            {% if preference.lower().replace(' ', '_') in user_preferences %}checked{% endif %}>
+                            <label class="custom-control-label" for="{{ preference.lower().replace(' ', '_') }}">{{ preference }}</label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-primary">Update Preferences</button>
         </form>
+
+
     </div>
 </div>
 {% endblock %}
