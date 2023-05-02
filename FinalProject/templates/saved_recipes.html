@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    {% include 'flash_messages.html' %}
+    <h2 class="text-center mt-5">Saved Recipes</h2>
+    {% for recipe in saved_recipes %}
+        <div class="card recipe-card">
+            <div class="card-body">
+                <div class="recipe-info">
+                    <h3 class="card-title"><a href="{{ url_for('recipe', recipe_id=recipe.id) }}">{{ recipe.title }}</a></h3>
+                    <!-- Add more recipe details here if needed -->
+                </div>
+                <form method="POST" action="{{ url_for('unsave_recipe', recipe_id=recipe.id) }}" class="unsave-recipe-form">
+                    <button type="submit" class="btn btn-danger btn-sm">Unsave Recipe</button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <p>You have no saved recipes. Start saving recipes from the recipe generation page!</p>
+    {% endfor %}
+</div>
+{% endblock %}
+

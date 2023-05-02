@@ -40,7 +40,6 @@ body {
 .flash-messages {
     position: relative;
     margin-top: 5px;
-    z-index: 200;
 }
 
 .scrollable-ingredients::-webkit-scrollbar {
@@ -99,6 +98,7 @@ body {
 
 .toggle-label {
     display: inline-block;
+    cursor: pointer;
     padding: 6px 12px;
     font-size: 14px;
     font-weight: 500;
@@ -109,7 +109,7 @@ body {
     transition: background-color 0.3s;
 }
 
-.invisible-checkbox:checked + .toggle-label {
+.custom-control-input:checked + .toggle-label {
     background-color: #007bff;
 }
 
@@ -120,43 +120,27 @@ body {
     margin-bottom: 1.5rem;
   }
   
-  /* Ingredients List */
-  .ingredients-header {
+.ingredients-header {
     font-size: 1.5rem;
     font-weight: bold;
     margin-top: 2rem;
     margin-bottom: 1rem;
-  }
+}
   
-  .ingredients-item {
+.ingredients-item {
     font-size: 1.2rem;
     line-height: 1.5;
     margin-left: 1.5rem;
-  }
+}
   
-  /* Instructions List */
-  .instructions-header {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-  }
-  
-  .instruction-item {
-    font-size: 1.2rem;
-    line-height: 1.5;
-    margin-left: 1.5rem;
-  }
-  
-  /* Generated Recipe Box */
-  .generated-recipe {
+.generated-recipe {
     margin: 0 auto;
     padding: 2rem;
     background-color: #f7f7f7;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  }
+}
 
-  .carousel-container {
+.carousel-container {
     background-color: #f8f9fa;
     padding: 2rem;
     border-radius: 5px;
@@ -187,4 +171,21 @@ body {
     cursor: pointer;
 }
 
+.subtitle {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #007bff;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
 
+.recipe-card {
+    background-color: rgba(180, 196, 217, 0.9);
+    margin-bottom: 1rem;
+}
+
+.recipe-card .card-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

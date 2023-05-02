@@ -2,17 +2,18 @@
     <div class="sidebar">
         {% if request.path == url_for('pantry') %}
         <h3>Common Ingredients</h3>
-        <p><small>Use "Add Ingredient" entry under your pantry for ingredients not found here</small></p>
+        <p><small class="subtitle">Use "Add Ingredient" entry under your pantry for ingredients not found here</small></p>
             <form method="POST" action="{{ url_for('update_common_ingredients') }}">
                 {% set categories = [
                     ('Pantry Essentials', ['Salt', 'Pepper', 'Sugar', 'Flour', 'Olive Oil', 'Baking Soda', 'Baking Powder', 'Vinegar', 'Cornstarch', 'Honey']),
                     ('Vegetables & Greens', ['Onion', 'Garlic', 'Tomato', 'Carrot', 'Broccoli', 'Spinach', 'Kale', 'Bell Pepper', 'Cucumber', 'Mushroom']),
                     ('Fruits', ['Apple', 'Banana', 'Orange', 'Strawberry', 'Blueberry', 'Raspberry', 'Grape', 'Peach', 'Lemon']),
-                    ('Nuts & Seeds', ['Almond', 'Walnut', 'Cashew', 'Peanut', 'Chia Seed', 'Flaxseed', 'Sunflower Seed', 'Pistachio', 'Pecan', 'Pumpkin Seed']),
+                    ('Nuts', ['Almond', 'Walnut', 'Cashew', 'Peanut', 'Pecan']),
                     ('Cheeses', ['Cheddar', 'Mozzarella', 'Parmesan', 'Feta', 'Swiss', 'Gouda', 'Brie', 'Monterey Jack', 'Provolone']),
-                    ('Dairy & Eggs', ['Milk', 'Butter', 'Yogurt', 'Sour Cream', 'Cream Cheese', 'Eggs', 'Cottage Cheese', 'Ricotta', 'Ice Cream']),
+                    ('Dairy & Eggs', ['Milk', 'Butter', 'Yogurt', 'Sour Cream', 'Cream Cheese', 'Eggs', 'Cottage Cheese']),
                     ('Meats', ['Chicken', 'Beef', 'Pork', 'Bacon', 'Sausage', 'Turkey', 'Salmon', 'Tuna', 'Shrimp', 'Lamb']),
-                    ('Grains & Pasta', ['Rice', 'Oats', 'Tortilla', 'Crackers', 'Spaghetti', 'Macaroni'])
+                    ('Grains & Pasta', ['Rice', 'Bread', 'Oats', 'Tortilla', 'Crackers', 'Spaghetti', 'Macaroni', 'Ramen']),
+                    ('Spices', ['Cinnamon', 'Cumin', 'Paprika', 'Turmeric', 'Ginger', 'Cloves', 'Nutmeg', 'Oregano', 'Thyme', 'Coriander'])
                 ] %}
                 {% for category, category_ingredients in categories %}
                     <div class="form-group">
@@ -20,7 +21,7 @@
                         <div class="ingredient-list">
                             {% for ingredient in category_ingredients %}
                                 <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input common-ingredient-checkbox invisible-checkbox" id="{{ ingredient }}"
+                                    <input type="checkbox" class="custom-control-input common-ingredient-checkbox" id="{{ ingredient }}"
                                         {% if ingredient in ingredient_names %}checked{% endif %}>
                                     <label class="custom-control-label toggle-label" for="{{ ingredient }}">{{ ingredient }}</label>
                                 </div>
@@ -30,28 +31,60 @@
                 {% endfor %}
             </form>
         {% elif request.path == url_for('recipe') %}
-            <h3>Generate Recipe</h3>
-            <form method="POST" action="{{ url_for('recipe') }}">
-                <div class="form-group">
-                    <label for="ingredients">Ingredients:</label>
-                    <input type="textarea" autocomplete="off" class="form-control" id="ingredients" name="ingredients" placeholder="Enter ingredients">
-                    {% if current_user.is_authenticated %}
-                        <p><small>Leave blank to use pantry</small></p>
-                    {% else %}
-                        <p><small>Register or Login to create persistent pantry and indicate dietary restrictions</small></p>
-                    {% endif %}
+        <h3>Generate Recipe</h3>
+        <form method="POST" action="{{ url_for('recipe') }}">
+            {% if current_user.is_authenticated %}
+            <ul class="nav nav-tabs" id="recipeTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="pantry-entry-tab" data-toggle="tab" href="#pantry-entry" role="tab" aria-controls="pantry-entry" aria-selected="true">Pantry Entry</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="ingredient-entry-tab" data-toggle="tab" href="#ingredient-entry" role="tab" aria-controls="ingredient-entry" aria-selected="false">Ingredient Entry</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="recipeTabsContent">
+                <div class="tab-pane fade show active" id="pantry-entry" role="tabpanel" aria-labelledby="pantry-entry-tab">
+                    <div class="form-group">
+                        <p><small>Use this tab to select ingredients from your pantry</small></p>
+                        <input class="form-control mb-2" id="search-ingredients" type="text" placeholder="Search ingredients...">
+                        <div class="ingredient-list scrollable-ingredients" style="height: 200px; overflow-y: scroll;">
+                            {% for ingredient in ingredient_names %}
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="pantry-{{ ingredient }}" name="pantry-ingredient-{{ ingredient }}" value="{{ ingredient }}" checked>
+                                <label class="custom-control-label toggle-label" for="pantry-{{ ingredient }}">{{ ingredient }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm mb-2" id="select-all">Select All</button>
+                    <button type="button" class="btn btn-secondary btn-sm mb-2" id="deselect-all">Deselect All</button>
+                </div>                
+                <div class="tab-pane fade" id="ingredient-entry" role="tabpanel" aria-labelledby="ingredient-entry-tab">
+                    <div class="form-group">
+                        <p><small>Use this tab to manually enter ingredients</small></p>
+                        <label for="ingredients">Ingredients:</label>
+                        <input type="textarea" autocomplete="off" class="form-control" id="ingredients" name="ingredients" placeholder="Enter ingredients">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="meal_type">Meal Type:</label>
-                    <select class="form-control" id="meal_type" name="meal_type">
-                        <option value="breakfast">Breakfast</option>
-                        <option value="lunch">Lunch</option>
-                        <option value="dinner">Dinner</option>
-                        <option value="a snack">Snack</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-success">Generate Recipe</button>
-            </form>
+            </div>
+            {% else %}
+            <div class="form-group">
+                <label for="ingredients">Ingredients:</label>
+                <input type="textarea" autocomplete="off" class="form-control" id="ingredients" name="ingredients" placeholder="Enter ingredients">
+                <p><small class="subtitle">Register or Login to create persistent pantry and indicate dietary restrictions</small></p>
+            </div>
+            {% endif %}
+            <div class="form-group">
+                <label for="meal_type">Meal Type:</label>
+                <select class="form-control" id="meal_type" name="meal_type">
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="a snack">Snack</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success">Generate Recipe</button>
+        </form>        
         {% endif %}
     </div>
 </div>
@@ -89,5 +122,38 @@
             sidebar.scrollTop = scrollPosition;
             localStorage.removeItem('sidebarScrollPosition');
         }
+    });
+
+    $(document).ready(function() {
+        $('#search-ingredients').on('input', function() {
+            let searchValue = $(this).val().toLowerCase();
+            $('.ingredient-list .toggle-label').each(function() {
+                var ingredientName = $(this).text().toLowerCase();
+                var words = ingredientName.split(' ');
+                var found = false;
+
+                for (var word of words) {
+                    if (word.startsWith(searchValue)) {
+                        found = true;
+                        break;
+                    }
+                }
+                console.log(found)
+                
+                if (found) {
+                    $(this).parent().show();
+                } else {
+                    $(this).parent().hide();
+                }
+            });
+        });
+
+        $('#select-all').click(function() {
+            $('.ingredient-list input[type="checkbox"]').prop('checked', true);
+        });
+
+        $('#deselect-all').click(function() {
+            $('.ingredient-list input[type="checkbox"]').prop('checked', false);
+        });
     });
 </script>
